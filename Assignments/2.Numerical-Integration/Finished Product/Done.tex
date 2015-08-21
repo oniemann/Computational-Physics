@@ -1,0 +1,71 @@
+\documentclass[10pt]{article}
+\usepackage[margin=.7in]{geometry}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\listfiles
+
+\begin{document}
+ 
+\begin{center}
+\large
+\hfill Okeefe Niemann\\
+\hfill 4/2/2014\\
+\hfill 1281465\\
+\hfill PHYS 115 \\
+\LARGE \textbf{Assignment 1}\\
+\end{center}
+\normalsize
+\section{Question 1}
+\subsection{Part a}
+
+\begin{itemize}
+\item Input:
+\begin{verbatim}
+#include<stdio.h>
+#include<math.h>
+
+double f(double x)
+{
+        return 1 / (1+x);
+}
+
+int main()
+{
+        double x, a, b, h, exact, ans, trap();
+        int i, n, iter, ITERMAX;
+        
+        exact = log((double) 2);
+        ITERMAX= 8;
+        b = 1.0;
+        a = 0;
+        
+        printf ("         h         ans       (exact - ans)/h^2 \n");
+        n=1;
+
+        for (iter = 0; iter < ITERMAX; iter++) {
+                h = (b - a) / n;
+                ans = trap (f, a, b, n);
+                n *= 2;
+                printf ("%12.5f %12.5f%12.5f \n", h, ans, (ans-exact)/(h*h));
+        }
+}
+\end{verbatim}
+\item Output:
+\begin{verbatim}
+    h         ans       (exact - ans)/h^2 
+     1.00000      0.75000     0.05685 
+     0.50000      0.70833     0.06074 
+     0.25000      0.69702     0.06203 
+     0.12500      0.69412     0.06238 
+     0.06250      0.69339     0.06247 
+     0.03125      0.69321     0.06249 
+     0.01562      0.69316     0.06250 
+     0.00781      0.69315     0.06250 
+\end{verbatim}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Part b}
+

@@ -1,0 +1,15 @@
+#include <stdio.h>
+#include <math.h>
+main()
+{
+double i;
+i = 19000000000;
+printf ("\n This is a really big number: %.1e \n", i);
+
+double golden_mean;
+golden_mean = (sqrt(5)-1)/2;
+printf("\n The value of the golden mean is %.8f. \n" , golden_mean);
+
+
+}
+

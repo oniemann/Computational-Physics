@@ -1,0 +1,34 @@
+\documentclass[10pt]{article}
+\usepackage[margin=.7in]{geometry}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\listfiles
+
+\begin{document}
+ 
+\begin{center}
+\large
+\hfill Okeefe Niemann\\
+\hfill 5/5/2014\\
+\hfill 1281465\\
+\hfill PHYS 115 \\
+\LARGE \textbf{Ising Model by Monte Carlo}\\
+\end{center}
+\normalsize
+\section{Introduction}
+In this project, I will be using the Monte Carlo technique to create a two dimensional ising model, extracting the average of the square of the magnetization for each temperature. By doing so, I will prove how the theoretical values of magnetization tend to zero as the temperature of the system reaches its critical value.
+
+When a molecular system is connected to a heat reservoir, the state of the system can be statistically represented by:
+
+$$P(n) = \frac{1}{Z} e^{-\frac{E_n}{k_B T}}$$
+where the normalizing factor $Z$ corresponds to the partition function of the system.
+
+$$Z = \sum\limits_{l} e^{-\frac{E_l}{k_B T}}$$
+This factor connects the macroscopic qualities (thermodynamics) to the microscopic qualities involving the states and their corresponding energy levels. From this, it's possible to calculate observable variables as averages over states with a Boltzmann weight. Compiling this all together, it is then simple to calculate the average value of a quantity over all states.
+
+$$<A> = \sum\limits_{n} P(n)A_n = \frac{\sum\limits_{n} A_n e^{-\frac{E_l}{k_B T}}}{\sum\limits_{l} e^{-\frac{E_l}{k_B T}}}$$
+
+
+\end{document}

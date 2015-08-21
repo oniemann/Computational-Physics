@@ -1,0 +1,12 @@
+#include <stdio.h>
+#include <math.h>
+
+int main(){
+double i, j=1, phi;
+
+for (i=0; i<20; i++){
+	phi= (sqrt(5)-1)/2;
+	j *= phi
+	}
+printf("\nThe value of the golden mean to the power of 20 is %f.\n\n", j);
+}

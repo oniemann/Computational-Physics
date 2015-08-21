@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include <math.h>
+
+int main() {
+float j;
+float value=1;
+
+for(j=0; j<200; j++){
+	if (value < INFINITY){
+		value *= 2;
+		printf("%f %.5e\n", j, value);
+	}
+	else {
+		break;
+	}
+
+}
+
+double i;
+double value1=1;
+
+for(i=0;i<10000; i++){
+	if (value1 < INFINITY){
+		value1 *= 2;
+		printf("%f %.5e\n", i, value1);
+	}
+	else {
+		break;
+	}
+
+}
+
+}
+	

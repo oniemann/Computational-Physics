@@ -1,0 +1,238 @@
+\documentclass[10pt]{article}
+\usepackage[margin=.7in]{geometry}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\listfiles
+
+\begin{document}
+ 
+\begin{center}
+\large
+\hfill Okeefe Niemann\\
+\hfill 5/5/2014\\
+\hfill 1281465\\
+\hfill PHYS 115 \\
+\LARGE \textbf{Molecular Dynamics Simulation}\\
+\end{center}
+\normalsize
+\section{Introduction}
+In this assignment, a program was created to show how an interacting classical system, after reaching equilibrium, can have its probabilities of certain configurations represented by the Boltzmann distribution. The Hamiltonian of such a system is
+
+\begin{equation}
+E  = \sum\limits_{i=1}^N \frac{1}{2}v_i^2 + \sum\limits_{i<j} V(x_i-x_j)
+\end{equation}
+
+where the mass is of unity. It then proceeds that a particle which is in equilibrium has its velocity represented by the following distribution (Maxwell-Boltzmann).
+
+\begin{equation}
+P(v_{equil}) = \frac{1}{\sqrt{2 \pi T}}exp(-\frac{v^2}{2 T})
+\end{equation}
+
+where $k_B$ is of unity and the temperature of the system is measured by
+
+\begin{equation}
+T = <v^2>_{equil}
+\end{equation}
+
+This is due to the average velocity being equal to zero, and thus the variance of the distribution relying of $<v^2>$. Following the conventions of the anharmonic spring (taylor expanding the potential and taking the derivative for the force), we find the force on an array of particles one unit length apart from each other to be
+
+\begin{equation}
+f(t) = -(t + t^2 + t^3)
+\end{equation}
+
+
+\section{Program}
+Using periodic boundary conditions, meaning that the array of particles $1 \to N$ loop backs back on itself in a circular configuration. We begin the system with the following conditions:
+
+$$x_n(t = 0) = 0$$
+$$v_n(t = 0) = sin\left(\frac{2 \pi (n + \delta)}{N}\right)$$
+In these equations, $l$ represents the position of the particle relative to the others, $\delta$ represents a shift in order to create asymmetries to combat against the inherent symmetries produced by the equations of motion, and $N$ corresponds to the total number of particles in the system. These initial conditions are placed to begin the system at in a state where all energy is kinetic. The following program is then implemented to track the frequency of velocities for N particles observed over any given amount of timesteps.
+
+\begin{verbatim}
+
+#include <stdio.h>
+#include <math.h>
+#include "verlet.h"
+
+
+//function represents the force on each particle during simulation
+double f(double y)
+{
+        return -(y + y*y + y*y*y);
+}
+
+
+int main(void)
+{
+        int N, n, i, j, t, g, T_EQ, T_RUN, bins;
+        double h, f(), v_sq, N_U;
+        double  v_avg, vsq_avg, vavg_min, vavg_max, v_one;
+        
+        FILE* fout;
+        fout = fopen("harmonicpositionvelocity.txt", "w");
+        
+        h = 0.02;
+        T_EQ = 800;
+        N_U = 1 / h;
+        
+        //User inputs parameters of program
+        printf("How many molecules in the system? ");
+        scanf("%d", &N);
+        printf("How many timesteps? ");
+        scanf("%d", &T_RUN);
+        printf("Amongst how many bins should the velocities be distributed? ");
+        scanf("%d", &bins);
+        
+        double x[N], v[N], vavg_array[T_RUN], bin_val[bins], v_bins[bins], width, gaussian[bins];
+        width = 6.0 / bins;
+        
+        //gives each particle in the system an initial velocity/displacement
+        for(n = 0; n < N; n++)
+        {
+                v[n] = sin(2*M_PI*((double)n + 1.3) / (double)N);
+                x[n] = 0;
+                //fprintf(fout, "%f   %f\n", x[n], v[n]);
+        }
+        
+        //below loop puts the system into equilibrium
+        for(t = 0; t <= T_EQ; t++)
+        {
+                for(j = 0; j < N_U; j++)
+                {
+                        verlet(N, h, x, v, f);
+                }
+        }
+
+        //runs the system and begins to record velocities	
+        for(t = 0; t < T_RUN;  t++)
+        {
+                v_sq = 0;
+                
+                //updates particles' positions and velocities N_U times per second
+                for(i = 0; i < N_U; i++)
+                {
+                        verlet(N, h, x, v, f);
+                }
+
+                //distributes all velocities into the bins
+                CreateBins(N, bins, width, v, bin_val, v_bins);
+
+
+                //computes <v^2> for each time step
+                for(i = 0; i < N; i++)
+                        v_sq += v[i] * v[i] / (double)N;
+                
+                //computes the average of all <v^2>
+                vsq_avg += v_sq/T_RUN;
+        }
+
+        double Norm = 0, AREA_GAUSS = 0, AREA_BINS = 0;
+        
+        //finds the normalization constant to fit the outputted data to a normalized gaussian curve
+        for(i = 0; i <= bins; i++)
+                Norm += width * v_bins[i];
+
+        
+        fprintf(fout, "T = %f\nNormalization Constant = %f\n\n", vsq_avg, Norm);
+        fprintf(fout, "     v        P(v)     Gaussian Fit\n");
+
+         
+        //Computes the gaussian fit for each bin based off <v^2> and prints normalized frequency data
+        for(i = 0; i <= bins; i++)
+        {
+                gaussian[i] =  ((1 / sqrt(2 * M_PI * vsq_avg)) * 
+                                exp(-(bin_val[i] * bin_val[i]) / (2 * vsq_avg)));
+
+                //calculates the area underneath each normalized function for every bin
+                AREA_GAUSS += gaussian[i] * width;
+                AREA_BINS += (v_bins[i] / Norm) * width;
+
+                fprintf(fout, "%f   %f    %f\n", bin_val[i], v_bins[i] / Norm, gaussian[i]);
+        }
+
+return 0;
+}
+
+\end{verbatim}
+
+In order to have motion and interaction in this dynamical system we need to have an underlying algorithm which takes into account the force on each particle. For this project, we will be using the velocity verlet method.
+
+\begin{verbatim}
+
+verlet(int N, double h, double x[], double v[], double f(double))
+{
+        int i;
+
+        //half steps of x
+        for(i = 0; i < N; i++)
+        {
+                x[i] += 0.5 * h * v[i];
+        }
+
+        //Because v[N] = v[0], need to run both v[0] and v[N-1] outside of the "for" loop
+        v[0] += h * (f(x[0] - x[1]) - f(x[N-1] - x[0]));
+        
+        for(i = 1; i < (N - 1); i++)
+        {
+                v[i] += h * (f(x[i] - x[i+1]) - f(x[i-1] - x[i]));
+        }
+
+        v[N-1] += h * (f(x[N-1] - x[0]) - f(x[N-2] - x[N-1]));
+        
+        //Finds position x[i] with updates on velocity v[i]
+        for(i = 0; i < N; i++)
+        {
+                x[i] += h * v[i]; 
+        }
+}
+
+
+\end{verbatim}
+
+What this algorithm does is update the particles' positions a half step forward with their current velocities. From there, the new velocities can be determined by the anharmonic force as a function of the half-step positions. With these new velocities, we can then fully update the particles' positions one whole step. The above loop for the update velocities excludes $n = 0, N$ as a result of the periodic boundaries. In the main body of the code, this algorithm updates positions and velocities $\frac{1}{h}$ times for every time step to accurately track the trajectories of the particles.
+
+Because we want the system in equilibrium before recording the particles' velocities, we must run the position verlet T\_EQ time steps. The value T\_EQ takes on should be large enough such that the velocities begin displaying statistical tendencies. From there we can begin placing the recorded velocities into bins to find the frequencies for ranges of $v$.
+
+\begin{verbatim}
+
+double CreateBins(int N, int bins, double width, double v[], double bin_val[], double v_bins[])
+{
+        int i, j;
+        
+        for(i = 0; i <= bins; i++)
+        {
+                bin_val[i] = width * i - 3;
+                
+                for(j = 0; j < N; j++)
+                {
+                        if((v[j] > bin_val[i]) && (v[j] < (bin_val[i] + width)))
+                                v_bins[i] += 1;
+                }
+        }
+}
+
+\end{verbatim}
+This ``CreateBins'' function creates a given amount of bins beginning at $v = -3$ and incrementing at a value $width = \frac{6}{bins}$ until reaching $v = 3$. The velocities from the particles the given time step are then tested to see if their values lay a given bin width $\Delta v$. If a velocity satisfies the conditional, the value of the bin increases by one. While the array of velocities is rewritten every time step, the values of the bins continue incrementing. 
+
+Before the loop corresponding to one time step ends, a variable v\_sq calculates the $\textless v^2 \textgreater$ for the time step. Another variable vsq\_avg finally adds the value of $\textless v^2 \textgreater$ normalized by the number of steps to itself. From this, we can find the average of all values of $\textless v^2 \textgreater$ and determine the temperature $T$ of the system.
+
+Now that $T$ can be determined, we can apply it to equation (2), using the value of each velocity bin as our value for the $v$ in the numerator of the exponential. We then compare our distribution of collected velocities with the Maxwell-Boltzmann constant, taking care to normalize our simulation values such that
+
+$$ \delta v \sum\limits_{i=1}^bins h_i = 1$$
+
+\section{Results}
+\subsection{Anharmonic Oscillator}
+The results for the anharmonic oscillator with $N = 20$ particles running $T_RUN = 1e^6$ time steps, being sorted into $5000$ bins yielded the following graph.
+
+\begin{center}
+\includegraphics[scale = 0.48]{AnharmonicOscillator}
+
+\footnotesize $N = 20$; $T_RUN = 1e^6$; $bins = 5000$
+\end{center}
+As expected, equation(3) yielded a Gaussian distribution almost identical to that of the Maxwell-Boltzmann distribution. The temperature of the system was found to be
+
+$$T = 0.276721$$
+
+\end{document}

@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <math.h>
+
+int main(){
+
+float i;
+float epsilon = 1;
+
+for (i=0; i<100; i++) {
+	float x = 1 - epsilon;
+	float y = 1 - x;
+	if (y > 0) {
+		epsilon *= .1;
+		printf("%.5e, %.5e, %.5e\n", epsilon, x, y);
+	}
+	else {
+		break;
+	}
+}
+
+
+double j;
+double epsilon1 = 1;
+
+for (j=0; j<100; j++) {
+	double w = 1 - epsilon1;
+	double z = 1 - w;
+	if (z > 0) {
+		epsilon *= .1;
+		printf("%e, %e, %e\n", epsilon1, w, z);
+	}
+	else {
+		break;
+	}
+
+}
+} 

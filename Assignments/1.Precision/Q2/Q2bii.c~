@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <math.h>
+
+int main() {
+
+double i;
+double value=1;
+
+for(i=0;i<1023; i++){
+	if (value < INFINITY){
+		value *= 2;
+		printf("%f %.5e\n", i, value);
+	}
+	else {
+		break;
+	}
+
+}
+value = value*1.999999999999999;
+printf("The largest value of a double is %e.5. \n", value);
+
+return 0;
+}
+	

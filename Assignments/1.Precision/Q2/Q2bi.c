@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <math.h>
+
+int main() {
+float j;
+float value=1;
+
+for(j=0; j<127; j++){
+	if (value < INFINITY){
+		value *= 2;
+		printf("%f %.5e\n", j, value);
+	}
+	else {
+		break;
+	}
+}
+value=value*1.9999999;
+printf("The largest value of a float is %e.5. \n", value);
+
+return 0;
+}
+	
