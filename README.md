@@ -1,0 +1,1 @@
+The following projects were first attempts at programming, in which I solved various physical methods numerically. The language C was used for the first 4-5 assignments, while Mathematica was used for the later assignments.
